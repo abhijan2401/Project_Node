@@ -2,11 +2,10 @@ const express = require('express')
 const app = express();
 const mongoose = require('mongoose')
 const Todies = require("./todies");
-// var bodyParser = require('body-parser')
-// var jsonParser = bodyParser.json();
+
 app.use(express.json());
 app.listen(process.env.PORT || 3000, () => {
-    console.log("server running");
+    console.log("server running at 3000");
     mongoose.connect("mongodb+srv://abhikhus24:abhijan2402@cluster0.5rlpuen.mongodb.net/Todo?retryWrites=true&w=majority",
         {
             useNewUrlParser: true,
@@ -17,22 +16,21 @@ app.listen(process.env.PORT || 3000, () => {
 
     });
 })
-// app.use(express.urlencoded({ extended: true }));
-app.get('/read/:UserId', async (req, res) => {
-    const Todoss = await Todies.find({ UserId: req.params.UserId });
+app.get('/read', async (req, res) => {
+    const Todoss = await Todies.find({});
     res.send({ Todoss: Todoss })
 })
 app.post('/addTodo', async (req, res) => {
     const data = Todies({
         _id: mongoose.Types.ObjectId(),
-        Title: req.body.Title,
-        description: req.body.description,
-        UserId: req.body.UserId,
-        Status: req.body.Status
+        Name: req.body.Name,
+        EmpTitle: req.body.EmpTitle,
+        Department: req.body.Department,
+        Salary: req.body.Salary
     })
     const AddData = await data.save()
     console.log(AddData)
-    res.send({ message: "Hello" })
+    res.send({ message: "Hello", data: AddData })
 })
 app.delete('/Delete/:id', async function (req, res) {
     await Todies.deleteOne({ _id: req.params.id }).then((result) => {
@@ -42,11 +40,17 @@ app.delete('/Delete/:id', async function (req, res) {
     })
 })
 app.put('/update/:id', async function (req, res) {
-    await Todies.updateOne({ _id: req.params.id }, { $set: { Status: "completed" } }).then((res) => {
-        console.log(res)
+
+    const Name = req.body.Name;
+    const EmpTitle = req.body.EmpTitle;
+    const Department = req.body.Department;
+    const Salary = req.body.Salary;
+    console.log(Name, EmpTitle, Department, Salary);
+    await Todies.updateOne({ _id: req.params.id }, { $set: { Name: Name, EmpTitle: EmpTitle, Department: Department, Salary: Salary } }).then((result) => {
+        console.log(result)
+        res.send({ message: "Data is Updated" })
     }).catch((e) => {
         console.log(e)
     })
 
 })
-// mongodb=mongodb+srv://abhikhus24:<password>@cluster0.5rlpuen.mongodb.net/?retryWrites=true&w=majority
